@@ -1,0 +1,37 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class Risk extends Model
+{
+    use HasFactory, HasUuids;
+
+    protected $keyType = 'string';
+    public $incrementing = false;
+
+    protected $fillable = [
+        'cluster',
+        'unit',
+        'name',
+        'category',
+        'description',
+        'impact',
+        'uc_c',
+        'status',
+        'created_by',
+    ];
+
+    public function causes()
+    {
+        return $this->hasMany(Cause::class);
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+}
