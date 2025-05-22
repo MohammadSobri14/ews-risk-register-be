@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\RiskController;
 
 // =====================
 // AUTH ENDPOINTS
@@ -22,4 +23,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/users/{id}', [AdminUserController::class, 'show']);
     Route::put('/users/{id}', [AdminUserController::class, 'update']);
     Route::delete('/users/{id}', [AdminUserController::class, 'destroy']);
+
+      // =====================
+    // RISK ENDPOINTS
+    // =====================
+    Route::apiResource('/risks', RiskController::class);
 });
