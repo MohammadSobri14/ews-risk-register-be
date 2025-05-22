@@ -1,5 +1,3 @@
-Berikut adalah contoh file `README.md` untuk proyek Laravel kamu yang menggunakan **JWT Authentication**:
-
 
 
 # EWS Risk Register Backend
