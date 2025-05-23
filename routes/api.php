@@ -10,10 +10,10 @@ use App\Http\Controllers\RiskController;
 // AUTH ENDPOINTS
 // =====================
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/refresh', [AuthController::class, 'refresh']);
 Route::middleware('auth:api')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::post('/refresh', [AuthController::class, 'refresh']);
 
     // =====================
     // ADMIN USER ENDPOINTS
