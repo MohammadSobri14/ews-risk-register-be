@@ -11,13 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('causes', function (Blueprint $table) {
-            $table->id();
+        Schema::create('risk_validations', function (Blueprint $table) {
+            $table->uuid('id')->primary();
             $table->uuid('risk_id');
-            $table->enum('category', ['man', 'machine', 'material', 'method', 'environment']); 
-            $table->text('main_cause'); 
-            $table->timestamps();
             $table->foreign('risk_id')->references('id')->on('risks')->onDelete('cascade');
+            
+            $table->foreignId('validated_by')->constrained('users')->onDelete('cascade'); 
+            
+            $table->boolean('is_approved');
+            $table->text('notes')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -26,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('causes');
+        Schema::dropIfExists('risk_validatiions');
     }
 };

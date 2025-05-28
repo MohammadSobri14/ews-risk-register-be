@@ -5,6 +5,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\RiskController;
+use App\Http\Controllers\RiskAnalysisController;
+use App\Http\Controllers\RiskValidationController;
+use App\Http\Controllers\RiskAppetiteController;
+use App\Http\Controllers\RiskMitigationController;
+
 
 // =====================
 // AUTH ENDPOINTS
@@ -24,8 +29,42 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/users/{id}', [AdminUserController::class, 'update']);
     Route::delete('/users/{id}', [AdminUserController::class, 'destroy']);
 
-      // =====================
+    // =====================
     // RISK ENDPOINTS
     // =====================
     Route::apiResource('/risks', RiskController::class);
+
+    // =====================
+    // RISK ANALYSIS ENDPOINTS
+    // =====================
+    Route::post('/risk-analysis', [RiskAnalysisController::class, 'store']);
+    Route::post('/risk-analysis/{id}/send', [RiskAnalysisController::class, 'sendToManris']);
+
+     // =====================
+    // NOTIFICATIONS ENDPOINT
+    // =====================
+    Route::get('/notifications', function () {
+      return auth()->user()->notifications;
+  });
+
+    // =====================
+    // RISK VALIDATION ENDPOINT
+    // =====================
+    Route::post('/risks/{id}/validate', [RiskValidationController::class, 'validateRisk']);
+
+        // =====================
+    // RISK APPETITE ENDPOINT
+    // =====================
+    Route::post('/risk-appetite', [RiskAppetiteController::class, 'store']);
+
+        // =====================
+    // RISK MITIGATIONS ENDPOINT
+    // =====================
+    Route::post('/risk-mitigations', [RiskMitigationController::class, 'store']);
+    Route::get('/risk-mitigations', [RiskMitigationController::class, 'index']);
+    Route::get('/risk-mitigations/{id}', [RiskMitigationController::class, 'show']);
+    Route::put('/risk-mitigations/{id}', [RiskMitigationController::class, 'update']);
+    Route::delete('/risk-mitigations/{id}', [RiskMitigationController::class, 'destroy']); 
+
+
 });
