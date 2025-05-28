@@ -11,12 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('causes', function (Blueprint $table) {
-            $table->id();
+        Schema::create('risk_analyses', function (Blueprint $table) {
+            $table->uuid('id')->primary();
             $table->uuid('risk_id');
-            $table->enum('category', ['man', 'machine', 'material', 'method', 'environment']); 
-            $table->text('main_cause'); 
+            $table->unsignedTinyInteger('severity');
+            $table->unsignedTinyInteger('probability');
+            $table->unsignedSmallInteger('score');
+            $table->string('grading');
+            $table->foreignId('created_by')->constrained('users');
             $table->timestamps();
+
             $table->foreign('risk_id')->references('id')->on('risks')->onDelete('cascade');
         });
     }
@@ -26,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('causes');
+        Schema::dropIfExists('risk_analyses');
     }
 };

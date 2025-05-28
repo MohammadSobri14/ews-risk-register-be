@@ -18,9 +18,16 @@ return new class extends Migration
             $table->string('name');
             $table->string('category');
             $table->text('description');
-            $table->text('impact');
+            $table->unsignedTinyInteger('impact');
             $table->boolean('uc_c')->default(false);
-            $table->enum('status', ['draft', 'sent', 'validated', 'rejected'])->default('draft');
+            $table->enum('status', [
+                'draft', 
+                'pending', 
+                'validated', 
+                'rejected',
+                'validated_approved',
+                'validated_rejected'
+            ])->default('draft');            
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });

@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('causes', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('risk_id');
-            $table->enum('category', ['man', 'machine', 'material', 'method', 'environment']); 
-            $table->text('main_cause'); 
+        Schema::create('notifications', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->string('type');
+            $table->morphs('notifiable');
+            $table->text('data');
+            $table->timestamp('read_at')->nullable();
             $table->timestamps();
-            $table->foreign('risk_id')->references('id')->on('risks')->onDelete('cascade');
         });
     }
 
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('causes');
+        Schema::dropIfExists('notifications');
     }
 };

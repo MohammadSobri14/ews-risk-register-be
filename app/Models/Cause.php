@@ -5,11 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+// app/Models/Cause.php
+
 class Cause extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['risk_id', 'main_cause'];
+    protected $fillable = ['risk_id', 'category', 'main_cause'];
 
     public function risk()
     {
@@ -20,4 +22,5 @@ class Cause extends Model
     {
         return $this->hasMany(SubCause::class);
     }
+
 }
