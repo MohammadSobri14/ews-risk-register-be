@@ -27,7 +27,7 @@ class RiskController extends Controller
         'name' => 'required|string',
         'category' => 'required|string',
         'description' => 'required|string',
-        'impact' => 'required|integer',
+        'impact' => 'required|string',
         'uc_c' => 'boolean',
         'causes' => 'required|array',
         'causes.*.category' => 'required|in:man,machine,material,method,environment',
@@ -90,59 +90,69 @@ class RiskController extends Controller
     }
 
     public function update(Request $request, $id)
-{
-    $request->validate([
-        'cluster' => 'required|string',
-        'unit' => 'required|string',
-        'name' => 'required|string',
-        'category' => 'required|string',
-        'description' => 'required|string',
-        'impact' => 'required|integer',
-        'uc_c' => 'boolean',
-        'status' => 'string',
-        'causes' => 'required|array',
-        'causes.*.category' => 'required|in:man,machine,material,method,environment',
-        'causes.*.main_cause' => 'required|string',
-        'causes.*.sub_causes' => 'nullable|array',
-        'causes.*.sub_causes.*' => 'required|string',
-    ]);
-
-    $risk = Risk::where('id', $id)
-        ->where('created_by', auth()->id())
-        ->firstOrFail();
-
-    DB::beginTransaction();
-    try {
-        $risk->update($request->only([
-            'cluster', 'unit', 'name', 'category', 'description', 'impact', 'uc_c', 'status'
-        ]));
-
-        foreach ($risk->causes as $cause) {
-            $cause->subCauses()->delete();
-        }
-        $risk->causes()->delete();
-
-        foreach ($request->causes as $causeData) {
-            $cause = $risk->causes()->create([
-                'category' => $causeData['category'],
-                'main_cause' => $causeData['main_cause'],
-            ]);
-
-            foreach ($causeData['sub_causes'] ?? [] as $sub) {
-                $cause->subCauses()->create([
-                    'sub_cause' => $sub,
-                ]);
+    {
+        $request->validate([
+            'cluster' => 'required|string',
+            'unit' => 'required|string',
+            'name' => 'required|string',
+            'category' => 'required|string',
+            'description' => 'required|string',
+           'impact' => 'required|string',
+            'uc_c' => 'boolean',
+            'status' => 'string',
+            'causes' => 'sometimes|array',
+            'causes.*.category' => 'required_with:causes|in:man,machine,material,method,environment',
+            'causes.*.main_cause' => 'required_with:causes|string',
+            'causes.*.sub_causes' => 'nullable|array',
+            'causes.*.sub_causes.*' => 'required_with:causes|string',
+        ]);
+    
+        $risk = Risk::where('id', $id)
+            ->where('created_by', auth()->id())
+            ->firstOrFail();
+    
+        DB::beginTransaction();
+        try {
+            $risk->update($request->only([
+                'cluster', 'unit', 'name', 'category', 'description', 'impact', 'uc_c', 'status'
+            ]));
+    
+            // update causes hanya jika dikirim
+            if ($request->has('causes')) {
+                foreach ($risk->causes as $cause) {
+                    $cause->subCauses()->delete();
+                }
+                $risk->causes()->delete();
+    
+                foreach ($request->causes as $causeData) {
+                    $cause = $risk->causes()->create([
+                        'category' => $causeData['category'],
+                        'main_cause' => $causeData['main_cause'],
+                    ]);
+    
+                    foreach ($causeData['sub_causes'] ?? [] as $sub) {
+                        $cause->subCauses()->create([
+                            'sub_cause' => $sub,
+                        ]);
+                    }
+                }
             }
+    
+            DB::commit();
+            return response()->json([
+                'message' => 'Risk updated successfully',
+                'risk' => $risk->load('causes.subCauses')
+            ]);
+    
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return response()->json([
+                'error' => 'Failed to update risk',
+                'message' => $e->getMessage()
+            ], 500);
         }
-
-        DB::commit();
-        return response()->json(['message' => 'Risk updated successfully', 'risk' => $risk->load('causes.subCauses')]);
-
-    } catch (\Throwable $e) {
-        DB::rollBack();
-        return response()->json(['error' => 'Failed to update risk', 'message' => $e->getMessage()], 500);
     }
-}
+    
 
 
     public function destroy($id)

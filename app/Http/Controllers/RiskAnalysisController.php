@@ -20,14 +20,19 @@ class RiskAnalysisController extends Controller
             'severity' => 'required|integer|min:1|max:5',
             'probability' => 'required|integer|min:1|max:5',
         ]);
-
+    
+        $score = $validated['severity'] * $validated['probability'];
+        $grading = RiskAnalysis::calculateGrading($score);
+    
         $analysis = RiskAnalysis::create([
             ...$validated,
+            'score' => $score,
+            'grading' => $grading,
             'created_by' => auth()->id(),
         ]);
-
+    
         return response()->json($analysis, 201);
-    }
+    }    
 
     public function sendToManris($id)
     {

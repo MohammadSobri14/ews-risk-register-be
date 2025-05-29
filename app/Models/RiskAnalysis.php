@@ -25,20 +25,24 @@ class RiskAnalysis extends Model
     {
         static::creating(function ($model) {
             $model->id = (string) Str::uuid();
-            $model->score = $model->severity * $model->probability;
-            $model->grading = self::calculateGrading($model->score);
         });
     }
 
     public static function calculateGrading($score): string
     {
-        return match (true) {
-            $score >= 15 => 'Merah',
-            $score >= 9 => 'Kuning',
-            $score >= 4 => 'Hijau',
-            default => 'Biru',
-        };
+        if ($score >= 1 && $score <= 4) {
+            return 'sangat rendah';
+        } elseif ($score >= 5 && $score <= 9) {
+            return 'rendah';
+        } elseif ($score >= 10 && $score <= 15) {
+            return 'sedang';
+        } elseif ($score >= 16 && $score <= 20) {
+            return 'tinggi';
+        } else {
+            return 'sangat tinggi';
+        }
     }
+
 
     public function risk(): BelongsTo
     {

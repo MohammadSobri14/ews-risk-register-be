@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('category');
             $table->text('description');
-            $table->unsignedTinyInteger('impact');
+            $table->string('impact');
             $table->boolean('uc_c')->default(false);
             $table->enum('status', [
                 'draft', 
