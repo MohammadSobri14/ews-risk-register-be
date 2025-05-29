@@ -17,7 +17,6 @@ class RiskAnalysis extends Model
         'severity',
         'probability',
         'score',
-        'grading',
         'created_by',
     ];
 
@@ -25,19 +24,7 @@ class RiskAnalysis extends Model
     {
         static::creating(function ($model) {
             $model->id = (string) Str::uuid();
-            $model->score = $model->severity * $model->probability;
-            $model->grading = self::calculateGrading($model->score);
         });
-    }
-
-    public static function calculateGrading($score): string
-    {
-        return match (true) {
-            $score >= 15 => 'Merah',
-            $score >= 9 => 'Kuning',
-            $score >= 4 => 'Hijau',
-            default => 'Biru',
-        };
     }
 
     public function risk(): BelongsTo
