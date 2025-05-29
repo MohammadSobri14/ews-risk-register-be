@@ -20,14 +20,19 @@ class RiskAnalysisController extends Controller
             'severity' => 'required|integer|min:1|max:5',
             'probability' => 'required|integer|min:1|max:5',
         ]);
-
+    
+        // Hitung score
+        $score = $validated['severity'] * $validated['probability'];
+    
         $analysis = RiskAnalysis::create([
             ...$validated,
+            'score' => $score,
             'created_by' => auth()->id(),
         ]);
-
+    
         return response()->json($analysis, 201);
     }
+    
 
     public function sendToManris($id)
     {
