@@ -17,7 +17,6 @@ return new class extends Migration
             $table->unsignedTinyInteger('severity');
             $table->unsignedTinyInteger('probability');
             $table->unsignedSmallInteger('score');
-            $table->string('grading');
             $table->foreignId('created_by')->constrained('users');
             $table->timestamps();
 
