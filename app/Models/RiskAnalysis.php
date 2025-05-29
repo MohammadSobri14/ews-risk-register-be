@@ -17,6 +17,7 @@ class RiskAnalysis extends Model
         'severity',
         'probability',
         'score',
+        'grading',
         'created_by',
     ];
 
@@ -26,6 +27,22 @@ class RiskAnalysis extends Model
             $model->id = (string) Str::uuid();
         });
     }
+
+    public static function calculateGrading($score): string
+    {
+        if ($score >= 1 && $score <= 4) {
+            return 'sangat rendah';
+        } elseif ($score >= 5 && $score <= 9) {
+            return 'rendah';
+        } elseif ($score >= 10 && $score <= 15) {
+            return 'sedang';
+        } elseif ($score >= 16 && $score <= 20) {
+            return 'tinggi';
+        } else {
+            return 'sangat tinggi';
+        }
+    }
+
 
     public function risk(): BelongsTo
     {
