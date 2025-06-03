@@ -38,9 +38,13 @@ Route::middleware('auth:api')->group(function () {
     // RISK ANALYSIS ENDPOINTS
     // =====================
     Route::post('/risk-analysis', [RiskAnalysisController::class, 'store']);
+    Route::get('/risk-analysis', [RiskAnalysisController::class, 'getAll']);
     Route::post('/risk-analysis/{id}/send', [RiskAnalysisController::class, 'sendToManris']);
+    Route::put('/risk-analysis/{id}', [RiskAnalysisController::class, 'update']);
+    Route::get('/risk-analysis/{id}', [RiskAnalysisController::class, 'getById']);
+    Route::delete('/risk-analysis/{id}', [RiskAnalysisController::class, 'delete']);
 
-     // =====================
+    // =====================
     // NOTIFICATIONS ENDPOINT
     // =====================
     Route::get('/notifications', function () {
@@ -64,7 +68,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/risk-mitigations', [RiskMitigationController::class, 'index']);
     Route::get('/risk-mitigations/{id}', [RiskMitigationController::class, 'show']);
     Route::put('/risk-mitigations/{id}', [RiskMitigationController::class, 'update']);
-    Route::delete('/risk-mitigations/{id}', [RiskMitigationController::class, 'destroy']); 
+    Route::delete('/risk-mitigations/{id}', [RiskMitigationController::class, 'destroy']);
 
 
 });
