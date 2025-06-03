@@ -38,7 +38,10 @@ Route::middleware('auth:api')->group(function () {
     // RISK ANALYSIS ENDPOINTS
     // =====================
     Route::post('/risk-analysis', [RiskAnalysisController::class, 'store']);
+    Route::get('/risk-analysis', [RiskAnalysisController::class, 'getAll']);
     Route::post('/risk-analysis/{id}/send', [RiskAnalysisController::class, 'sendToManris']);
+    Route::get('/risk-analysis/pending-and-approved', [RiskAnalysisController::class,'getPendingAndApproved']);
+
 
      // =====================
     // NOTIFICATIONS ENDPOINT

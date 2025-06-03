@@ -10,9 +10,26 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\RiskAnalysisSent;
+use Illuminate\Support\Facades\Auth;
 
 class RiskAnalysisController extends Controller
 {
+
+    public function getAll()
+    {
+        $user = Auth::user();
+
+        if ($user->role === 'koordinator_unit') {
+            $analyses = RiskAnalysis::with(['risk', 'creator'])
+                ->where('created_by', $user->id)
+                ->get();
+        } else {
+            $analyses = collect(); 
+        }
+
+        return response()->json($analyses);
+    }
+    
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -49,6 +66,24 @@ class RiskAnalysisController extends Controller
 
         return response()->json(['message' => 'Dikirim ke Koordinator Manajemen Risiko']);
     }
+
+
+    public function getPendingAndApproved()
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'koordinator_menris') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $risks = Risk::with('analysis')
+            ->whereIn('status', ['pending', 'validated_approved'])
+            ->whereHas('analysis')
+            ->get();
+
+        return response()->json($risks);
+    }
+
 
 
 }

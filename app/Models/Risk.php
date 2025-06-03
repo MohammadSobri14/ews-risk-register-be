@@ -40,4 +40,10 @@ class Risk extends Model
         return $this->hasMany(RiskValidation::class);
     }
 
+    public function analysis()
+    {
+        return $this->hasOne(RiskAnalysis::class, 'risk_id');
+    }
+
+
 }

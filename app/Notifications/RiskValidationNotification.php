@@ -2,35 +2,33 @@
 
 namespace App\Notifications;
 
+use App\Models\Risk;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
-use App\Models\Risk;
+use Illuminate\Notifications\Messages\BroadcastMessage;
+use Illuminate\Broadcasting\Channel;
 
-class RiskValidationNotification extends Notification
+class RiskValidationNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $risk;
-    protected $isApproved;
-    protected $notes;
+    public function __construct(
+        public Risk $risk,
+        public bool $isApproved,
+        public ?string $notes = null
+    ) {}
 
-    public function __construct(Risk $risk, bool $isApproved, $notes = null)
+    public function via($notifiable): array
     {
-        $this->risk = $risk;
-        $this->isApproved = $isApproved;
-        $this->notes = $notes;
+        return ['database', 'mail', 'broadcast'];
     }
 
-    public function via($notifiable)
-    {
-        return ['database', 'mail'];
-    }
-
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
-            ->view('emails.risk_validation', [ 
+            ->view('emails.risk_validation', [
                 'risk' => $this->risk,
                 'isApproved' => $this->isApproved,
                 'notes' => $this->notes,
@@ -41,8 +39,7 @@ class RiskValidationNotification extends Notification
             );
     }
 
-
-    public function toDatabase($notifiable)
+    public function toDatabase($notifiable): array
     {
         return [
             'risk_id' => $this->risk->id,
@@ -53,5 +50,20 @@ class RiskValidationNotification extends Notification
                 ? 'Risk disetujui Koordinator Manajemen Risiko.'
                 : 'Risk ditolak Koordinator Manajemen Risiko, perlu revisi.',
         ];
+    }
+
+    public function toBroadcast($notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage($this->toDatabase($notifiable));
+    }
+
+    public function broadcastAs(): string
+    {
+        return 'notification-validasi-risk';
+    }
+
+    public function broadcastOn(): Channel
+    {
+        return new Channel('risk-validation');
     }
 }

@@ -8,6 +8,7 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Messages\BroadcastMessage;
+use Illuminate\Broadcasting\Channel;
 
 class RiskAnalysisSent extends Notification
 {
@@ -29,7 +30,6 @@ class RiskAnalysisSent extends Notification
             ->subject('Analisis Risiko Baru Dikirim');
     }
 
-
     public function toArray($notifiable): array
     {
         return [
@@ -47,4 +47,15 @@ class RiskAnalysisSent extends Notification
             'analysis_id' => $this->analysis->id,
         ]);
     }
+
+    public function broadcastAs()
+    {
+        return 'notification-menris';
+    }
+
+    public function broadcastOn(): Channel
+    {
+        return new Channel('risk-analysis'); 
+    }
+
 }
