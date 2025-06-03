@@ -26,6 +26,7 @@ class RiskAnalysisController extends Controller
         } else {
             // Role lain, kosongkan hasil
             $analyses = collect(); // atau ->whereRaw('1 = 0')->get()
+            $analyses = collect();
         }
 
         return response()->json($analyses);
@@ -43,6 +44,7 @@ class RiskAnalysisController extends Controller
 
         return response()->json($analysis);
     }
+
 
     public function store(Request $request)
     {
@@ -84,7 +86,6 @@ class RiskAnalysisController extends Controller
     public function update(Request $request, $id)
     {
         $analysis = RiskAnalysis::findOrFail($id);
-
         $user = Auth::user();
         if ($user->role !== 'koordinator_unit' || $analysis->created_by !== $user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -121,4 +122,24 @@ class RiskAnalysisController extends Controller
 
         return response()->json(['message' => 'Risk analysis deleted successfully']);
     }
+
+
+    public function getPendingAndApproved()
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'koordinator_menris') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $risks = Risk::with('analysis')
+            ->whereIn('status', ['pending', 'validated_approved'])
+            ->whereHas('analysis')
+            ->get();
+
+        return response()->json($risks);
+    }
+
+
+
 }

@@ -43,6 +43,7 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/risk-analysis/{id}', [RiskAnalysisController::class, 'update']);
     Route::get('/risk-analysis/{id}', [RiskAnalysisController::class, 'getById']);
     Route::delete('/risk-analysis/{id}', [RiskAnalysisController::class, 'delete']);
+    Route::get('/risk-analysis/pending-and-approved', [RiskAnalysisController::class,'getPendingAndApproved']);
 
     // =====================
     // NOTIFICATIONS ENDPOINT
