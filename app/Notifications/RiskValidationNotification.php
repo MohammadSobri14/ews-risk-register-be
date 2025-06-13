@@ -33,9 +33,10 @@ class RiskValidationNotification extends Notification implements ShouldQueue
                 'isApproved' => $this->isApproved,
                 'notes' => $this->notes,
             ])
-            ->subject($this->isApproved 
-                ? "Risk '{$this->risk->name}' Disetujui"
-                : "Risk '{$this->risk->name}' Ditolak"
+            ->subject(
+                $this->isApproved
+                    ? "Risk '{$this->risk->name}' Disetujui"
+                    : "Risk '{$this->risk->name}' Ditolak"
             );
     }
 

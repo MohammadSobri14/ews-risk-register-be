@@ -14,12 +14,14 @@ use Illuminate\Support\Facades\Auth;
 
 class RiskAnalysisController extends Controller
 {
+
     public function getAll()
     {
         $user = Auth::user();
 
         if ($user->role === 'koordinator_unit') {
-            // Hanya ambil data yang dibuat oleh user login
+
+
             $analyses = RiskAnalysis::with(['risk', 'creator'])
                 ->where('created_by', $user->id)
                 ->get();
@@ -27,6 +29,7 @@ class RiskAnalysisController extends Controller
             // Role lain, kosongkan hasil
             $analyses = collect(); // atau ->whereRaw('1 = 0')->get()
             $analyses = collect();
+
         }
 
         return response()->json($analyses);
@@ -34,17 +37,19 @@ class RiskAnalysisController extends Controller
 
     public function getById($id)
     {
-        $analysis = RiskAnalysis::with(['risk', 'creator'])->findOrFail($id);
+        $analysis = RiskAnalysis::with([
+            'risk.causes.subCauses', // ambil risk, lalu causes, lalu sub-causes
+            'creator',
+        ])->findOrFail($id);
 
         $user = Auth::user();
-        // Validasi agar user hanya bisa akses data yang dia buat
+
         if ($user->role === 'koordinator_unit' && $analysis->created_by !== $user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         return response()->json($analysis);
     }
-
 
     public function store(Request $request)
     {
@@ -54,6 +59,18 @@ class RiskAnalysisController extends Controller
             'probability' => 'required|integer|min:1|max:5',
         ]);
 
+        // Cek apakah user sudah pernah membuat analisis untuk risk_id ini
+        $existingAnalysis = RiskAnalysis::where('risk_id', $validated['risk_id'])
+            ->where('created_by', Auth::user()->id)
+            ->first();
+
+        if ($existingAnalysis) {
+            return response()->json([
+                'message' => 'Analisis risiko untuk risiko ini sudah pernah dibuat oleh Anda.'
+            ], 409); // 409 Conflict
+        }
+
+        // Jika belum ada, lanjut buat
         $score = $validated['severity'] * $validated['probability'];
         $grading = RiskAnalysis::calculateGrading($score);
 
@@ -61,7 +78,7 @@ class RiskAnalysisController extends Controller
             ...$validated,
             'score' => $score,
             'grading' => $grading,
-            'created_by' => auth()->id(),
+            'created_by' => Auth::id(),
         ]);
 
         return response()->json($analysis, 201);
@@ -70,6 +87,15 @@ class RiskAnalysisController extends Controller
     public function sendToManris($id)
     {
         $analysis = RiskAnalysis::findOrFail($id);
+
+        // Misal status 'pending' artinya sudah dikirim ke menris
+        if ($analysis->risk->status === 'pending') {
+            return response()->json([
+                'message' => 'Data sudah pernah dikirim ke Menris'
+            ], 400); // HTTP 400 Bad Request atau 409 Conflict juga bisa
+        }
+
+        // Simpan perubahan dan ubah status
         $analysis->save();
 
         $risk = $analysis->risk;
@@ -83,9 +109,12 @@ class RiskAnalysisController extends Controller
         return response()->json(['message' => 'Dikirim ke Koordinator Manajemen Risiko']);
     }
 
+
     public function update(Request $request, $id)
     {
         $analysis = RiskAnalysis::findOrFail($id);
+
+
         $user = Auth::user();
         if ($user->role !== 'koordinator_unit' || $analysis->created_by !== $user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -123,7 +152,6 @@ class RiskAnalysisController extends Controller
         return response()->json(['message' => 'Risk analysis deleted successfully']);
     }
 
-
     public function getPendingAndApproved()
     {
         $user = Auth::user();
@@ -137,9 +165,11 @@ class RiskAnalysisController extends Controller
             ->whereHas('analysis')
             ->get();
 
-        return response()->json($risks);
+            return response()->json($risks);
+        }
     }
 
 
 
-}
+
+

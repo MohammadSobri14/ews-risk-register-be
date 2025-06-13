@@ -48,8 +48,8 @@ Route::middleware('auth:api')->group(function () {
     // =====================
     // NOTIFICATIONS ENDPOINT
     // =====================
-    Route::get('/notifications', function () {
-      return auth()->user()->notifications;
+    Route::get('/notifications', function (Request $request) {
+      return $request->user()->notifications;
   });
 
     // =====================
