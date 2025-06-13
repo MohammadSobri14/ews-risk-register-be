@@ -29,7 +29,6 @@ class RiskAnalysisController extends Controller
             // Role lain, kosongkan hasil
             $analyses = collect(); // atau ->whereRaw('1 = 0')->get()
             $analyses = collect();
-
         }
 
         return response()->json($analyses);
@@ -165,25 +164,7 @@ class RiskAnalysisController extends Controller
             ->whereHas('analysis')
             ->get();
 
-            return response()->json($risks);
-        }
-    }
-
-
-    public function getById($id)
-    {
-        $analysis = RiskAnalysis::with([
-            'risk.causes.subCauses', 
-            'creator',
-        ])->findOrFail($id);
-
-        $user = Auth::user();
-
-        if ($user->role === 'koordinator_unit' && $analysis->created_by !== $user->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
-        return response()->json($analysis);
+        return response()->json($risks);
     }
 
     public function getCompleteByRiskId($riskId)
@@ -201,10 +182,7 @@ class RiskAnalysisController extends Controller
                 ]);
             },
         ])->where('risk_id', $riskId)->firstOrFail();
-    
+
         return response()->json($analysis);
     }
-    
-
-
-
+}
