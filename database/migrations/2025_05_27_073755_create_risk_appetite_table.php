@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('risk_appetite', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('risk_id')->constrained('risks')->onDelete('cascade');
-            $table->unsignedTinyInteger('controllability'); // Skor 1-4
-            $table->enum('decision', ['accepted', 'mitigated']);
+            $table->unsignedTinyInteger('controllability'); 
+            $table->enum('decision', ['accepted', 'mitigated'])->nullable(); 
+            $table->unsignedInteger('scoring')->nullable(); // P × S × C
+            $table->unsignedInteger('ranking')->nullable(); 
             $table->unsignedBigInteger('created_by');
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();

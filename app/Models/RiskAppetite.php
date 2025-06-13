@@ -15,6 +15,8 @@ class RiskAppetite extends Model
         'risk_id',
         'controllability',
         'decision',
+        'scoring', 
+        'ranking', 
         'created_by',
     ];
 
