@@ -46,5 +46,14 @@ class Risk extends Model
         return $this->hasOne(RiskAnalysis::class, 'risk_id');
     }
 
+    public function riskAppetite()
+    {
+        return $this->hasOne(RiskAppetite::class)->latestOfMany();
+    }
+
+    public function mitigations()
+    {
+        return $this->hasMany(RiskMitigation::class);
+    }
 
 }

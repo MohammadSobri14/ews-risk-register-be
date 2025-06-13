@@ -46,4 +46,20 @@ class RiskValidationController extends Controller
 
         return response()->json(['message' => 'Validasi berhasil disimpan.']);
     }
+
+
+    public function getValidatedRisks()
+    {
+        $validatedRisks = Risk::with([
+            'causes.subCauses',
+            'analysis',
+            'riskAppetite' 
+        ])
+        ->whereIn('status', ['validated_approved', 'validated_rejected'])
+        ->get();
+    
+        return response()->json($validatedRisks);
+    }
+    
+
 }

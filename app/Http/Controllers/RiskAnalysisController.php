@@ -170,6 +170,41 @@ class RiskAnalysisController extends Controller
     }
 
 
+    public function getById($id)
+    {
+        $analysis = RiskAnalysis::with([
+            'risk.causes.subCauses', 
+            'creator',
+        ])->findOrFail($id);
+
+        $user = Auth::user();
+
+        if ($user->role === 'koordinator_unit' && $analysis->created_by !== $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        return response()->json($analysis);
+    }
+
+    public function getCompleteByRiskId($riskId)
+    {
+        $analysis = RiskAnalysis::with([
+            'creator',
+            'risk' => function ($query) {
+                $query->with([
+                    'causes.subCauses',
+                    'mitigations.descriptions',
+                    'mitigations.pic',
+                    'creator',
+                    'validations.validator',
+                    'riskAppetite',
+                ]);
+            },
+        ])->where('risk_id', $riskId)->firstOrFail();
+    
+        return response()->json($analysis);
+    }
+    
 
 
 

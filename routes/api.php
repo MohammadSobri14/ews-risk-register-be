@@ -41,11 +41,11 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/risk-analysis', [RiskAnalysisController::class, 'getAll']);
     Route::post('/risk-analysis/{id}/send', [RiskAnalysisController::class, 'sendToManris']);
     Route::put('/risk-analysis/{id}', [RiskAnalysisController::class, 'update']);
-    Route::get('/risk-analysis/{id}', [RiskAnalysisController::class, 'getById']);
     Route::delete('/risk-analysis/{id}', [RiskAnalysisController::class, 'delete']);
     Route::get('/risk-analysis/pending-and-approved', [RiskAnalysisController::class,'getPendingAndApproved']);
+    Route::get('/risk-analysis/{id}', [RiskAnalysisController::class, 'getById']);
 
-    // =====================
+     // =====================
     // NOTIFICATIONS ENDPOINT
     // =====================
     Route::get('/notifications', function (Request $request) {
@@ -55,21 +55,28 @@ Route::middleware('auth:api')->group(function () {
     // =====================
     // RISK VALIDATION ENDPOINT
     // =====================
+    Route::get('/risk-validations/validated', [RiskValidationController::class, 'getValidatedRisks']);
     Route::post('/risks/{id}/validate', [RiskValidationController::class, 'validateRisk']);
-
         // =====================
+
+
     // RISK APPETITE ENDPOINT
     // =====================
     Route::post('/risk-appetite', [RiskAppetiteController::class, 'store']);
+    Route::patch('/risk-appetite/{id}/decision', [RiskAppetiteController::class, 'updateDecision']);
+    Route::put('/risk-appetite/{id}/controllability', [RiskAppetiteController::class, 'updateControllability']);
+
 
         // =====================
     // RISK MITIGATIONS ENDPOINT
     // =====================
     Route::post('/risk-mitigations', [RiskMitigationController::class, 'store']);
     Route::get('/risk-mitigations', [RiskMitigationController::class, 'index']);
+    Route::get('/risk-mitigations/risk/{riskId}', [RiskMitigationController::class, 'getMitigationsByRiskId']);
     Route::get('/risk-mitigations/{id}', [RiskMitigationController::class, 'show']);
     Route::put('/risk-mitigations/{id}', [RiskMitigationController::class, 'update']);
     Route::delete('/risk-mitigations/{id}', [RiskMitigationController::class, 'destroy']);
 
 
+    Route::get('/risk-analysis/by-risk/{riskId}/complete', [RiskAnalysisController::class, 'getCompleteByRiskId']);
 });

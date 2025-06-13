@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use App\Models\RiskMitigation;
+use App\Models\RiskMitigation;   
 use App\Models\MitigationDescription;
 
 class RiskMitigationController extends Controller
@@ -40,6 +40,17 @@ class RiskMitigationController extends Controller
             'data' => $mitigation->load('descriptions'),
         ], 201);
     }
+
+
+    public function getMitigationsByRiskId($riskId)
+    {
+        $mitigations = RiskMitigation::with('descriptions', 'pic')
+                        ->where('risk_id', $riskId)
+                        ->get();
+
+        return response()->json($mitigations);
+    }
+
 
     public function show($id)
     {
