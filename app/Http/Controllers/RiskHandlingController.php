@@ -7,6 +7,7 @@ use App\Models\RiskHandling;
 use App\Models\User;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\RiskHandlingSubmitted;
+use App\Notifications\RiskHandlingReviewed;
 
 class RiskHandlingController extends Controller
 {
@@ -51,4 +52,75 @@ class RiskHandlingController extends Controller
             'message' => 'Notifikasi berhasil dikirim ke kepala puskesmas.',
         ]);
     }
+
+    // Kepala Puskesmas Menyetujui atau Menolak Laporan
+    // public function reviewHandling(Request $request, $id)
+    // {
+    //     $user = auth()->user();
+
+    //     if ($user->role !== 'kepala_puskesmas') {
+    //         return response()->json(['message' => 'Unauthorized'], 403);
+    //     }
+
+    //     $request->validate([
+    //         'is_approved' => 'required|boolean',
+    //         'notes' => 'nullable|string',
+    //     ]);
+
+    //     $handling = RiskHandling::findOrFail($id);
+    //     $handling->is_approved = $request->is_approved;
+    //     $handling->review_notes = $request->notes;
+    //     $handling->reviewed_by = $user->id;
+    //     $handling->save();
+
+    //     $creator = $handling->handledBy; // Relasi ke user pembuat
+
+    //     Notification::send($creator, new RiskHandlingReviewed($handling));
+
+    //     return response()->json([
+    //         'message' => $request->is_approved ? 'Disetujui dan disahkan.' : 'Ditolak dan dikembalikan ke koordinator.',
+    //     ]);
+    // }
+
+
+    public function reviewHandling(Request $request, $id)
+    {
+        $user = auth()->user();
+
+        if ($user->role !== 'kepala_puskesmas') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'is_approved' => 'required|boolean',
+            'notes' => 'nullable|string',
+            'approval_signature' => 'nullable|string', 
+        ]);
+
+        $handling = RiskHandling::findOrFail($id);
+        $handling->is_approved = $request->is_approved;
+        $handling->reviewed_by = $user->id;
+
+        if ($request->is_approved) {
+            if ($request->has('approval_signature')) {
+                $handling->approval_signature = $request->approval_signature;
+            }
+            $handling->review_notes = null;
+        } else {
+            $handling->review_notes = $request->notes;
+            $handling->approval_signature = null; 
+        }
+
+        $handling->save();
+
+        $creator = $handling->handledBy;
+        Notification::send($creator, new RiskHandlingReviewed($handling));
+
+        return response()->json([
+            'message' => $request->is_approved
+                ? 'Disetujui dan disahkan.'
+                : 'Ditolak dan dikembalikan ke koordinator.',
+        ]);
+    }
+
 }
