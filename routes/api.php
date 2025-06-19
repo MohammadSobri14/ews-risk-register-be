@@ -9,6 +9,7 @@ use App\Http\Controllers\RiskAnalysisController;
 use App\Http\Controllers\RiskValidationController;
 use App\Http\Controllers\RiskAppetiteController;
 use App\Http\Controllers\RiskMitigationController;
+use App\Http\Controllers\RiskHandlingController;
 
 
 // =====================
@@ -79,6 +80,13 @@ Route::middleware('auth:api')->group(function () {
 
 
     Route::get('/risk-analysis/by-risk/{riskId}/complete', [RiskAnalysisController::class, 'getCompleteByRiskId']);
+
+
+    // =====================
+    // RISK HANDLING ENDPOINT
+    // =====================
+    Route::post('/risk-handlings', [RiskHandlingController::class, 'store']);
+    Route::post('/risk-handlings/{id}/send', [RiskHandlingController::class, 'sendToKepala']);
 
 
 
