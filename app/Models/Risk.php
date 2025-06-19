@@ -55,4 +55,10 @@ class Risk extends Model
         return $this->hasMany(RiskMitigation::class);
     }
 
+    public function handlings()
+    {
+        return $this->hasMany(RiskHandling::class);
+    }
+
+
 }
