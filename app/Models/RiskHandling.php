@@ -18,7 +18,12 @@ class RiskHandling extends Model
         'risk_id',
         'handled_by', 
         'effectiveness', 
+        'is_approved',
+        'review_notes',
+        'reviewed_by',
+         'approval_signature',
     ];
+    
 
     public function risk()
     {
@@ -33,5 +38,10 @@ class RiskHandling extends Model
     public function handledBy()
     {
         return $this->belongsTo(User::class, 'handled_by');
+    }
+
+    public function reviewer()
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
     }
 }
