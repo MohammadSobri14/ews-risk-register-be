@@ -60,5 +60,4 @@ class Risk extends Model
         return $this->hasMany(RiskHandling::class);
     }
 
-
 }
