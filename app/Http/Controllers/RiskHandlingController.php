@@ -37,7 +37,36 @@ class RiskHandlingController extends Controller
            'data' => $handling,
        ]);
    }
-   
+
+    public function getAll()
+    {
+        $user = auth()->user();
+
+        if (!in_array($user->role, ['koordinator_mutu', 'koordinator_unit', 'kepala_puskesmas'])) {
+            return response()->json(['message' => 'Tidak diizinkan.'], 403);
+        }
+
+        $handlings = RiskHandling::with([
+            'risk.causes.subCauses',
+            'risk.mitigations.descriptions',
+            'risk.mitigations.pic',
+            'risk.riskAppetite',
+            'risk.validations.validator',
+            'risk.creator',
+            'handler',
+            'reviewer',
+        ])
+            ->orderByDesc('created_at')
+            ->get();
+
+        return response()->json([
+            'message' => 'Data penanganan risiko berhasil diambil.',
+            'data' => $handlings,
+        ]);
+    }
+
+
+
 
     // Kirim notifikasi ke kepala puskesmas berdasarkan ID RiskHandling
     public function sendToKepala($id)
@@ -122,5 +151,50 @@ class RiskHandlingController extends Controller
                 : 'Ditolak dan dikembalikan ke koordinator.',
         ]);
     }
+
+
+    public function update(Request $request, $id)
+    {
+        $user = auth()->user();
+
+        if (!in_array($user->role, ['koordinator_mutu', 'koordinator_unit'])) {
+            return response()->json([
+                'message' => 'Anda tidak memiliki izin untuk melakukan aksi ini.'
+            ], 403);
+        }
+
+        $request->validate([
+            'effectiveness' => 'required|in:TE,KE,E',
+        ]);
+
+        $handling = RiskHandling::findOrFail($id);
+        $handling->effectiveness = $request->effectiveness;
+        $handling->save();
+
+        return response()->json([
+            'message' => 'Efektivitas penanganan berhasil diperbarui.',
+            'data' => $handling,
+        ]);
+    }
+
+    public function destroy($id)
+    {
+        $user = auth()->user();
+
+        if (!in_array($user->role, ['koordinator_mutu', 'koordinator_unit'])) {
+            return response()->json([
+                'message' => 'Anda tidak memiliki izin untuk menghapus data ini.'
+            ], 403);
+        }
+
+        $handling = RiskHandling::findOrFail($id);
+        $handling->delete();
+
+        return response()->json([
+            'message' => 'Data penanganan risiko berhasil dihapus.'
+        ]);
+    }
+
+
 
 }
