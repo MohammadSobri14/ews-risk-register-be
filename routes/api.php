@@ -78,7 +78,7 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/risk-mitigations/{id}', [RiskMitigationController::class, 'destroy']); 
 
 
-//   general endpoin API
+    // general endpoin API
     Route::get('/risk-analysis/by-risk/{riskId}/complete', [RiskAnalysisController::class, 'getCompleteByRiskId']);
 
 
@@ -88,6 +88,10 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/risk-handlings', [RiskHandlingController::class, 'store']);
     Route::post('/risk-handlings/{id}/send', [RiskHandlingController::class, 'sendToKepala']);
     Route::post('/risk-handlings/{id}/review', [RiskHandlingController::class, 'reviewHandling']);
+    Route::get('/risk-handlings', [RiskHandlingController::class, 'getAll']);
+    Route::put('/risk-handlings/{id}', [RiskHandlingController::class, 'update']);
+    Route::delete('/risk-handlings/{id}', [RiskHandlingController::class, 'destroy']);
+
 
 
 
