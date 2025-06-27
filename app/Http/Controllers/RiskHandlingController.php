@@ -73,6 +73,10 @@ class RiskHandlingController extends Controller
     {
         $handling = RiskHandling::findOrFail($id);
 
+        // Update status is_sent
+        $handling->is_sent = true;
+        $handling->save();
+
         $kepala = User::where('role', 'kepala_puskesmas')->get();
 
         Notification::send($kepala, new RiskHandlingSubmitted($handling));
@@ -81,6 +85,7 @@ class RiskHandlingController extends Controller
             'message' => 'Notifikasi berhasil dikirim ke kepala puskesmas.',
         ]);
     }
+
 
     // Kepala Puskesmas Menyetujui atau Menolak Laporan
     // public function reviewHandling(Request $request, $id)
