@@ -17,10 +17,11 @@ return new class extends Migration
             $table->unsignedBigInteger('handled_by');
             $table->enum('effectiveness', ['TE', 'KE', 'E']);
             
+            $table->boolean('is_sent')->default(false); 
             $table->boolean('is_approved')->nullable(); 
             $table->text('review_notes')->nullable();  
             $table->unsignedBigInteger('reviewed_by')->nullable();
-            $table->string('approval_signature')->nullable();
+            $table->text('approval_signature')->nullable();
 
             $table->timestamps();
 

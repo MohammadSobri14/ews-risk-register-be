@@ -18,6 +18,7 @@ class RiskHandling extends Model
         'risk_id',
         'handled_by', 
         'effectiveness', 
+        'is_sent',
         'is_approved',
         'review_notes',
         'reviewed_by',
