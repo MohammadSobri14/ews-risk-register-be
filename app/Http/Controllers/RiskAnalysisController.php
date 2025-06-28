@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Risk;
 use App\Models\RiskAnalysis;
+use App\Models\RiskHandling;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -167,6 +168,41 @@ class RiskAnalysisController extends Controller
         return response()->json($risks);
     }
 
+    // public function getById($id)
+    // {
+    //     $analysis = RiskAnalysis::with([
+    //         'risk.causes.subCauses',
+    //         'creator',
+    //     ])->findOrFail($id);
+
+    //     $user = Auth::user();
+
+    //     if ($user->role === 'koordinator_unit' && $analysis->created_by !== $user->id) {
+    //         return response()->json(['message' => 'Unauthorized'], 403);
+    //     }
+
+    //     return response()->json($analysis);
+    // }
+
+    // public function getCompleteByRiskId($riskId)
+    // {
+    //     $analysis = RiskAnalysis::with([
+    //         'creator',
+    //         'risk' => function ($query) {
+    //             $query->with([
+    //                 'causes.subCauses',
+    //                 'mitigations.descriptions',
+    //                 'mitigations.pic',
+    //                 'creator',
+    //                 'validations.validator',
+    //                 'riskAppetite',
+    //             ]);
+    //         },
+    //     ])->where('risk_id', $riskId)->firstOrFail();
+
+    //     return response()->json($analysis);
+    // }
+
     public function getCompleteByRiskId($riskId)
     {
         $analysis = RiskAnalysis::with([
@@ -179,6 +215,7 @@ class RiskAnalysisController extends Controller
                     'creator',
                     'validations.validator',
                     'riskAppetite',
+                    'riskHandlings.handledBy',
                 ]);
             },
         ])->where('risk_id', $riskId)->firstOrFail();
