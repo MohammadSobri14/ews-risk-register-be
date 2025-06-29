@@ -102,25 +102,6 @@ class RiskAnalysisController extends Controller
         return response()->json($analysis);
     }
 
-    // public function getCompleteByRiskId($riskId)
-    // {
-    //     $analysis = RiskAnalysis::with([
-    //         'creator',
-    //         'risk' => function ($query) {
-    //             $query->with([
-    //                 'causes.subCauses',
-    //                 'mitigations.descriptions',
-    //                 'mitigations.pic',
-    //                 'creator',
-    //                 'validations.validator',
-    //                 'riskAppetite',
-    //             ]);
-    //         },
-    //     ])->where('risk_id', $riskId)->firstOrFail();
-    
-    //     return response()->json($analysis);
-    // }
-
     public function getCompleteByRiskId($riskId)
     {
         $analysis = RiskAnalysis::with([
@@ -133,13 +114,32 @@ class RiskAnalysisController extends Controller
                     'creator',
                     'validations.validator',
                     'riskAppetite',
-                    'riskHandlings.handledBy', 
                 ]);
             },
         ])->where('risk_id', $riskId)->firstOrFail();
-
+    
         return response()->json($analysis);
     }
+
+    // public function getCompleteByRiskId($riskId)
+    // {
+    //     $analysis = RiskAnalysis::with([
+    //         'creator',
+    //         'risk' => function ($query) {
+    //             $query->with([
+    //                 'causes.subCauses',
+    //                 'mitigations.descriptions',
+    //                 'mitigations.pic',
+    //                 'creator',
+    //                 'validations.validator',
+    //                 'riskAppetite',
+    //                 'riskHandlings.handledBy', 
+    //             ]);
+    //         },
+    //     ])->where('risk_id', $riskId)->firstOrFail();
+
+    //     return response()->json($analysis);
+    // }
 
     
 
