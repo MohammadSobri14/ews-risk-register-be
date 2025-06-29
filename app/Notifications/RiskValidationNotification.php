@@ -50,8 +50,10 @@ class RiskValidationNotification extends Notification implements ShouldQueue
             'message' => $this->isApproved
                 ? 'Risk disetujui Koordinator Manajemen Risiko.'
                 : 'Risk ditolak Koordinator Manajemen Risiko, perlu revisi.',
+            'notifiable_id' => $notifiable->id,
         ];
     }
+
 
     public function toBroadcast($notifiable): BroadcastMessage
     {

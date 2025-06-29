@@ -215,6 +215,7 @@ class RiskAnalysisController extends Controller
     //                 'creator',
     //                 'validations.validator',
     //                 'riskAppetite',
+
     //                 'riskHandlings.handledBy',
     //             ]);
     //         },
@@ -222,4 +223,9 @@ class RiskAnalysisController extends Controller
 
     //     return response()->json($analysis);
     // }
+
+
+
+
 }
+
