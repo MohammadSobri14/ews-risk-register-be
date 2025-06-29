@@ -14,24 +14,24 @@ class RiskHandlingController extends Controller
    public function store(Request $request)
    {
        $user = auth()->user();
-   
+
        if (!in_array($user->role, ['koordinator_mutu', 'koordinator_unit'])) {
            return response()->json([
                'message' => 'Anda tidak memiliki izin untuk melakukan aksi ini.'
            ], 403);
        }
-   
+
        $request->validate([
            'risk_id' => 'required|uuid|exists:risks,id',
            'effectiveness' => 'required|in:TE,KE,E',
        ]);
-   
+
        $handling = RiskHandling::create([
            'risk_id' => $request->risk_id,
            'handled_by' => $user->id,
            'effectiveness' => $request->effectiveness,
        ]);
-   
+
        return response()->json([
            'message' => 'Efektivitas penanganan berhasil disimpan.',
            'data' => $handling,
@@ -128,7 +128,7 @@ class RiskHandlingController extends Controller
         $request->validate([
             'is_approved' => 'required|boolean',
             'notes' => 'nullable|string',
-            'approval_signature' => 'nullable|string', 
+            'approval_signature' => 'nullable|string',
         ]);
 
         $handling = RiskHandling::findOrFail($id);
@@ -142,7 +142,7 @@ class RiskHandlingController extends Controller
             $handling->review_notes = null;
         } else {
             $handling->review_notes = $request->notes;
-            $handling->approval_signature = null; 
+            $handling->approval_signature = null;
         }
 
         $handling->save();
