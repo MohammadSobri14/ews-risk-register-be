@@ -31,6 +31,12 @@ class RiskAnalysisController extends Controller
         return response()->json($analyses);
     }
     
+    public function getAllWithoutLimit()
+    {
+        $analyses = RiskAnalysis::with(['risk', 'creator'])->get();
+        return response()->json($analyses);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

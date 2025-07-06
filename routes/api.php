@@ -40,6 +40,7 @@ Route::middleware('auth:api')->group(function () {
     // =====================
     Route::post('/risk-analysis', [RiskAnalysisController::class, 'store']);
     Route::get('/risk-analysis', [RiskAnalysisController::class, 'getAll']);
+    Route::get('/risk-analysis/all', [RiskAnalysisController::class, 'getAllWithoutLimit']);
     Route::post('/risk-analysis/{id}/send', [RiskAnalysisController::class, 'sendToManris']);
 
     Route::get('/risk-analysis/pending-and-approved', [RiskAnalysisController::class,'getPendingAndApproved']);
@@ -62,12 +63,14 @@ Route::middleware('auth:api')->group(function () {
         
     // RISK APPETITE ENDPOINT
     // =====================
+    Route::get('/risk-appetites', [RiskAppetiteController::class, 'index']);
     Route::post('/risk-appetite', [RiskAppetiteController::class, 'store']);
     Route::patch('/risk-appetite/{id}/decision', [RiskAppetiteController::class, 'updateDecision']);
     Route::put('/risk-appetite/{id}/controllability', [RiskAppetiteController::class, 'updateControllability']);
 
 
-        // =====================
+
+    // =====================
     // RISK MITIGATIONS ENDPOINT
     // =====================
     Route::post('/risk-mitigations', [RiskMitigationController::class, 'store']);
@@ -89,6 +92,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/risk-handlings/{id}/send', [RiskHandlingController::class, 'sendToKepala']);
     Route::post('/risk-handlings/{id}/review', [RiskHandlingController::class, 'reviewHandling']);
     Route::get('/risk-handlings', [RiskHandlingController::class, 'getAll']);
+    Route::get('/risk-handlings/all-public', [RiskHandlingController::class, 'getAllPublic']);
     Route::put('/risk-handlings/{id}', [RiskHandlingController::class, 'update']);
     Route::delete('/risk-handlings/{id}', [RiskHandlingController::class, 'destroy']);
 

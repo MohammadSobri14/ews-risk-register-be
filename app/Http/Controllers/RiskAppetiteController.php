@@ -125,5 +125,18 @@ class RiskAppetiteController extends Controller
     ]);
 }
 
+    public function index()
+    {
+        $data = RiskAppetite::with('risk') 
+            ->orderByDesc('created_at')
+            ->get();
+
+        return response()->json([
+            'message' => 'List data risk appetite',
+            'data' => $data,
+        ]);
+    }
+
+
 
 }
