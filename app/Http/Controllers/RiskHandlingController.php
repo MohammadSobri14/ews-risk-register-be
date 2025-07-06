@@ -65,6 +65,27 @@ class RiskHandlingController extends Controller
         ]);
     }
 
+    public function getAllPublic()
+    {
+        $handlings = RiskHandling::with([
+            'risk.causes.subCauses',
+            'risk.mitigations.descriptions',
+            'risk.mitigations.pic',
+            'risk.riskAppetite',
+            'risk.validations.validator',
+            'risk.creator',
+            'handler',
+            'reviewer',
+        ])
+            ->orderByDesc('created_at')
+            ->get();
+
+        return response()->json([
+            'message' => 'Data penanganan risiko berhasil diambil (tanpa validasi akses).',
+            'data' => $handlings,
+        ]);
+    }
+
 
 
 
