@@ -21,21 +21,41 @@ class RiskAnalysisController extends Controller
         $user = Auth::user();
 
         if ($user->role === 'koordinator_unit') {
+
+
             $analyses = RiskAnalysis::with(['risk', 'creator'])
                 ->where('created_by', $user->id)
                 ->get();
         } else {
-            $analyses = collect(); 
+            // Role lain, kosongkan hasil
+            $analyses = collect(); // atau ->whereRaw('1 = 0')->get()
+            $analyses = collect();
         }
 
         return response()->json($analyses);
     }
-    
-    public function getAllWithoutLimit()
+
+    public function getById($id)
     {
-        $analyses = RiskAnalysis::with(['risk', 'creator'])->get();
-        return response()->json($analyses);
+        $analysis = RiskAnalysis::with([
+            'risk.causes.subCauses', // ambil risk, lalu causes, lalu sub-causes
+            'creator',
+        ])->findOrFail($id);
+
+        $user = Auth::user();
+
+        if ($user->role === 'koordinator_unit' && $analysis->created_by !== $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        return response()->json($analysis);
     }
+
+    public function getAllWithoutLimit()
+        {
+            $analyses = RiskAnalysis::with(['risk', 'creator'])->get();
+            return response()->json($analyses);
+        }
 
     public function store(Request $request)
     {
@@ -44,26 +64,47 @@ class RiskAnalysisController extends Controller
             'severity' => 'required|integer|min:1|max:5',
             'probability' => 'required|integer|min:1|max:5',
         ]);
-    
+
+        // Cek apakah user sudah pernah membuat analisis untuk risk_id ini
+        $existingAnalysis = RiskAnalysis::where('risk_id', $validated['risk_id'])
+            ->where('created_by', Auth::user()->id)
+            ->first();
+
+        if ($existingAnalysis) {
+            return response()->json([
+                'message' => 'Analisis risiko untuk risiko ini sudah pernah dibuat oleh Anda.'
+            ], 409); // 409 Conflict
+        }
+
+        // Jika belum ada, lanjut buat
         $score = $validated['severity'] * $validated['probability'];
         $grading = RiskAnalysis::calculateGrading($score);
-    
+
         $analysis = RiskAnalysis::create([
             ...$validated,
             'score' => $score,
             'grading' => $grading,
-            'created_by' => auth()->id(),
+            'created_by' => Auth::id(),
         ]);
-    
+
         return response()->json($analysis, 201);
-    }    
+    }
 
     public function sendToManris($id)
     {
         $analysis = RiskAnalysis::findOrFail($id);
+
+        // Misal status 'pending' artinya sudah dikirim ke menris
+        if ($analysis->risk->status === 'pending') {
+            return response()->json([
+                'message' => 'Data sudah pernah dikirim ke Menris'
+            ], 400); // HTTP 400 Bad Request atau 409 Conflict juga bisa
+        }
+
+        // Simpan perubahan dan ubah status
         $analysis->save();
 
-        $risk = $analysis->risk; 
+        $risk = $analysis->risk;
         $risk->status = 'pending';
         $risk->save();
 
@@ -74,6 +115,48 @@ class RiskAnalysisController extends Controller
         return response()->json(['message' => 'Dikirim ke Koordinator Manajemen Risiko']);
     }
 
+
+    public function update(Request $request, $id)
+    {
+        $analysis = RiskAnalysis::findOrFail($id);
+
+
+        $user = Auth::user();
+        if ($user->role !== 'koordinator_unit' || $analysis->created_by !== $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'severity' => 'required|integer|min:1|max:5',
+            'probability' => 'required|integer|min:1|max:5',
+        ]);
+
+        $score = $validated['severity'] * $validated['probability'];
+        $grading = RiskAnalysis::calculateGrading($score);
+
+        $analysis->update([
+            'severity' => $validated['severity'],
+            'probability' => $validated['probability'],
+            'score' => $score,
+            'grading' => $grading,
+        ]);
+
+        return response()->json($analysis);
+    }
+
+    public function delete($id)
+    {
+        $analysis = RiskAnalysis::findOrFail($id);
+
+        $user = Auth::user();
+        if ($user->role !== 'koordinator_unit' || $analysis->created_by !== $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $analysis->delete();
+
+        return response()->json(['message' => 'Risk analysis deleted successfully']);
+    }
 
     public function getPendingAndApproved()
     {
@@ -91,22 +174,21 @@ class RiskAnalysisController extends Controller
         return response()->json($risks);
     }
 
+    // public function getById($id)
+    // {
+    //     $analysis = RiskAnalysis::with([
+    //         'risk.causes.subCauses',
+    //         'creator',
+    //     ])->findOrFail($id);
 
-    public function getById($id)
-    {
-        $analysis = RiskAnalysis::with([
-            'risk.causes.subCauses', 
-            'creator',
-        ])->findOrFail($id);
+    //     $user = Auth::user();
 
-        $user = Auth::user();
+    //     if ($user->role === 'koordinator_unit' && $analysis->created_by !== $user->id) {
+    //         return response()->json(['message' => 'Unauthorized'], 403);
+    //     }
 
-        if ($user->role === 'koordinator_unit' && $analysis->created_by !== $user->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
-        return response()->json($analysis);
-    }
+    //     return response()->json($analysis);
+    // }
 
     public function getCompleteByRiskId($riskId)
     {
@@ -123,7 +205,7 @@ class RiskAnalysisController extends Controller
                 ]);
             },
         ])->where('risk_id', $riskId)->firstOrFail();
-    
+
         return response()->json($analysis);
     }
 
@@ -139,7 +221,8 @@ class RiskAnalysisController extends Controller
     //                 'creator',
     //                 'validations.validator',
     //                 'riskAppetite',
-    //                 'riskHandlings.handledBy', 
+
+    //                 'riskHandlings.handledBy',
     //             ]);
     //         },
     //     ])->where('risk_id', $riskId)->firstOrFail();
@@ -147,6 +230,8 @@ class RiskAnalysisController extends Controller
     //     return response()->json($analysis);
     // }
 
-    
+
+
 
 }
+

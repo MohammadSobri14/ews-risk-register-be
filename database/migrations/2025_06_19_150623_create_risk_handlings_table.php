@@ -16,10 +16,10 @@ return new class extends Migration
             $table->uuid('risk_id');
             $table->unsignedBigInteger('handled_by');
             $table->enum('effectiveness', ['TE', 'KE', 'E']);
-            
-            $table->boolean('is_sent')->default(false); 
-            $table->boolean('is_approved')->nullable(); 
-            $table->text('review_notes')->nullable();  
+            $table->text('barrier')->nullable();
+            $table->boolean('is_sent')->default(false);
+            $table->boolean('is_approved')->nullable();
+            $table->text('review_notes')->nullable();
             $table->unsignedBigInteger('reviewed_by')->nullable();
             $table->text('approval_signature')->nullable();
 

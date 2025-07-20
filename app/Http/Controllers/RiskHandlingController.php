@@ -11,32 +11,34 @@ use App\Notifications\RiskHandlingReviewed;
 
 class RiskHandlingController extends Controller
 {
-   public function store(Request $request)
-   {
-       $user = auth()->user();
-   
-       if (!in_array($user->role, ['koordinator_mutu', 'koordinator_unit'])) {
-           return response()->json([
-               'message' => 'Anda tidak memiliki izin untuk melakukan aksi ini.'
-           ], 403);
-       }
-   
-       $request->validate([
-           'risk_id' => 'required|uuid|exists:risks,id',
-           'effectiveness' => 'required|in:TE,KE,E',
-       ]);
-   
-       $handling = RiskHandling::create([
-           'risk_id' => $request->risk_id,
-           'handled_by' => $user->id,
-           'effectiveness' => $request->effectiveness,
-       ]);
-   
-       return response()->json([
-           'message' => 'Efektivitas penanganan berhasil disimpan.',
-           'data' => $handling,
-       ]);
-   }
+    public function store(Request $request)
+    {
+        $user = auth()->user();
+
+        if (!in_array($user->role, ['koordinator_mutu', 'koordinator_unit'])) {
+            return response()->json([
+                'message' => 'Anda tidak memiliki izin untuk melakukan aksi ini.'
+            ], 403);
+        }
+
+        $request->validate([
+            'risk_id' => 'required|uuid|exists:risks,id',
+            'effectiveness' => 'required|in:TE,KE,E',
+            'barrier' => 'nullable|string|max:1000',
+        ]);
+
+        $handling = RiskHandling::create([
+            'risk_id' => $request->risk_id,
+            'handled_by' => $user->id,
+            'effectiveness' => $request->effectiveness,
+            'barrier' => $request->barrier,
+        ]);
+
+        return response()->json([
+            'message' => 'Efektivitas penanganan berhasil disimpan.',
+            'data' => $handling,
+        ]);
+    }
 
     public function getAll()
     {
@@ -86,15 +88,10 @@ class RiskHandlingController extends Controller
         ]);
     }
 
-
-
-
-    // Kirim notifikasi ke kepala puskesmas berdasarkan ID RiskHandling
     public function sendToKepala($id)
     {
         $handling = RiskHandling::findOrFail($id);
 
-        // Update status is_sent
         $handling->is_sent = true;
         $handling->save();
 
@@ -107,37 +104,6 @@ class RiskHandlingController extends Controller
         ]);
     }
 
-
-    // Kepala Puskesmas Menyetujui atau Menolak Laporan
-    // public function reviewHandling(Request $request, $id)
-    // {
-    //     $user = auth()->user();
-
-    //     if ($user->role !== 'kepala_puskesmas') {
-    //         return response()->json(['message' => 'Unauthorized'], 403);
-    //     }
-
-    //     $request->validate([
-    //         'is_approved' => 'required|boolean',
-    //         'notes' => 'nullable|string',
-    //     ]);
-
-    //     $handling = RiskHandling::findOrFail($id);
-    //     $handling->is_approved = $request->is_approved;
-    //     $handling->review_notes = $request->notes;
-    //     $handling->reviewed_by = $user->id;
-    //     $handling->save();
-
-    //     $creator = $handling->handledBy; // Relasi ke user pembuat
-
-    //     Notification::send($creator, new RiskHandlingReviewed($handling));
-
-    //     return response()->json([
-    //         'message' => $request->is_approved ? 'Disetujui dan disahkan.' : 'Ditolak dan dikembalikan ke koordinator.',
-    //     ]);
-    // }
-
-
     public function reviewHandling(Request $request, $id)
     {
         $user = auth()->user();
@@ -149,7 +115,7 @@ class RiskHandlingController extends Controller
         $request->validate([
             'is_approved' => 'required|boolean',
             'notes' => 'nullable|string',
-            'approval_signature' => 'nullable|string', 
+            'approval_signature' => 'nullable|string',
         ]);
 
         $handling = RiskHandling::findOrFail($id);
@@ -163,7 +129,7 @@ class RiskHandlingController extends Controller
             $handling->review_notes = null;
         } else {
             $handling->review_notes = $request->notes;
-            $handling->approval_signature = null; 
+            $handling->approval_signature = null;
         }
 
         $handling->save();
@@ -178,7 +144,6 @@ class RiskHandlingController extends Controller
         ]);
     }
 
-
     public function update(Request $request, $id)
     {
         $user = auth()->user();
@@ -191,10 +156,12 @@ class RiskHandlingController extends Controller
 
         $request->validate([
             'effectiveness' => 'required|in:TE,KE,E',
+            'barrier' => 'nullable|string|max:1000',
         ]);
 
         $handling = RiskHandling::findOrFail($id);
         $handling->effectiveness = $request->effectiveness;
+        $handling->barrier = $request->barrier;
         $handling->save();
 
         return response()->json([
@@ -220,7 +187,4 @@ class RiskHandlingController extends Controller
             'message' => 'Data penanganan risiko berhasil dihapus.'
         ]);
     }
-
-
-
 }

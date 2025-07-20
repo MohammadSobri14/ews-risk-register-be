@@ -55,7 +55,6 @@ class RiskAnalysisSent extends Notification
 
     public function broadcastOn(): Channel
     {
-        return new Channel('risk-analysis'); 
+        return new Channel('risk-analysis');
     }
-
 }

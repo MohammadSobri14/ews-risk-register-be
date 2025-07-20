@@ -22,7 +22,7 @@ class RiskValidationController extends Controller
 
         $validation = RiskValidation::create([
             'risk_id' => $risk->id,
-            'validated_by' => auth()->id(),
+            'validated_by' => optional($request->user())->id,
             'is_approved' => $request->is_approved,
             'notes' => $request->notes,
         ]);

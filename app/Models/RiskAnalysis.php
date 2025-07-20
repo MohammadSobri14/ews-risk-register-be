@@ -49,6 +49,7 @@ class RiskAnalysis extends Model
         return $this->belongsTo(Risk::class);
     }
 
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

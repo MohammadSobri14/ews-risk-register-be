@@ -11,13 +11,26 @@ use Illuminate\Support\Facades\DB;
 
 class RiskController extends Controller
 {
+    // public function index()
+    // {
+    //     // Menampilkan semua risk milik user yang sedang login
+    //     return Risk::with('causes.subCauses')
+    //         ->where('created_by', auth()->id())
+    //         ->get();
+    // }
+
     public function index()
     {
-        // Menampilkan semua risk milik user yang sedang login
-        return Risk::with('causes.subCauses')
-            ->where('created_by', auth()->id())
-            ->get();
+        $user = auth()->user();
+        $query = Risk::with(['causes.subCauses', 'handlings']);
+
+        if ($user->role !== 'koordinator_mutu') {
+            $query->where('created_by', $user->id);
+        }
+        return $query->get();
     }
+
+
 
     public function store(Request $request)
 {
@@ -106,30 +119,30 @@ class RiskController extends Controller
             'causes.*.sub_causes' => 'nullable|array',
             'causes.*.sub_causes.*' => 'required_with:causes|string',
         ]);
-    
+
         $risk = Risk::where('id', $id)
             ->where('created_by', auth()->id())
             ->firstOrFail();
-    
+
         DB::beginTransaction();
         try {
             $risk->update($request->only([
                 'cluster', 'unit', 'name', 'category', 'description', 'impact', 'uc_c', 'status'
             ]));
-    
+
             // update causes hanya jika dikirim
             if ($request->has('causes')) {
                 foreach ($risk->causes as $cause) {
                     $cause->subCauses()->delete();
                 }
                 $risk->causes()->delete();
-    
+
                 foreach ($request->causes as $causeData) {
                     $cause = $risk->causes()->create([
                         'category' => $causeData['category'],
                         'main_cause' => $causeData['main_cause'],
                     ]);
-    
+
                     foreach ($causeData['sub_causes'] ?? [] as $sub) {
                         $cause->subCauses()->create([
                             'sub_cause' => $sub,
@@ -137,13 +150,13 @@ class RiskController extends Controller
                     }
                 }
             }
-    
+
             DB::commit();
             return response()->json([
                 'message' => 'Risk updated successfully',
                 'risk' => $risk->load('causes.subCauses')
             ]);
-    
+
         } catch (\Throwable $e) {
             DB::rollBack();
             return response()->json([
@@ -152,7 +165,7 @@ class RiskController extends Controller
             ], 500);
         }
     }
-    
+
 
 
     public function destroy($id)
