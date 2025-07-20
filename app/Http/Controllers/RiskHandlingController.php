@@ -44,7 +44,7 @@ class RiskHandlingController extends Controller
     {
         $user = auth()->user();
 
-        if (!in_array($user->role, ['koordinator_mutu', 'koordinator_unit', 'kepala_puskesmas'])) {
+        if (!in_array($user->role, ['koordinator_mutu', 'koordinator_unit', 'kepala_puskesmas','koordinator_menris', 'admin'])) {
             return response()->json(['message' => 'Tidak diizinkan.'], 403);
         }
 
