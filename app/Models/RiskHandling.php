@@ -16,15 +16,16 @@ class RiskHandling extends Model
 
     protected $fillable = [
         'risk_id',
-        'handled_by', 
-        'effectiveness', 
+        'handled_by',
+        'effectiveness',
+        'barrier',
         'is_sent',
         'is_approved',
         'review_notes',
         'reviewed_by',
          'approval_signature',
     ];
-    
+
 
     public function risk()
     {
