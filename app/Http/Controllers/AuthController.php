@@ -49,4 +49,32 @@ class AuthController extends Controller
         ]);
     }
 
+    public function updateProfile(Request $request)
+{
+    $user = Auth::user();
+
+    // Validasi input
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email,' . $user->id,
+        'password' => 'nullable|string|min:6|confirmed', // password konfirmasi
+    ]);
+
+    // Update data
+    $user->name = $validated['name'];
+    $user->email = $validated['email'];
+
+    if (!empty($validated['password'])) {
+        $user->password = bcrypt($validated['password']);
+    }
+
+    $user->save();
+
+    return response()->json([
+        'message' => 'Profile updated successfully',
+        'user' => $user
+    ]);
+}
+
+
 }
