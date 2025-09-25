@@ -5,8 +5,8 @@
     <title>Notifikasi Validasi Risiko</title>
 </head>
 <body>
-    <p>Risiko <strong>{{ $risk->name }}</strong> telah 
-        {{ $isApproved ? 'disetujui' : 'ditolak' }} oleh Koordinator Manajemen Risiko.</p>
+    <p>Risiko <strong>{{ $risk->name }}</strong> telah
+    {{ $isApproved ? 'approved' : 'rejected' }} by the Risk Management Coordinator.</p>
 
     @if(!$isApproved && $notes)
         <p><strong>Catatan Penolakan:</strong> {{ $notes }}</p>

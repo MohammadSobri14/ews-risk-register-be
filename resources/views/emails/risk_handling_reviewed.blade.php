@@ -7,7 +7,7 @@
 <body>
     <h2>Hasil Review Laporan Penanganan Risiko</h2>
     <p><strong>Oleh:</strong> {{ $handling->reviewer->name ?? 'Tidak diketahui' }}</p>
-    <p><strong>Status:</strong> {{ $handling->is_approved ? 'Disetujui' : 'Ditolak' }}</p>
+    <p><strong>Status:</strong> {{ $handling->is_approved ? 'Approved' : 'Rejected' }}</p>
     @if(!$handling->is_approved)
         <p><strong>Catatan:</strong> {{ $handling->review_notes ?? '-' }}</p>
     @endif

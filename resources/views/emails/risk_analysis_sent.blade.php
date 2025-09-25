@@ -7,7 +7,7 @@
 <body>
     <p>Halo,</p>
 
-    <p>Sebuah <strong>analisis risiko</strong> baru telah dikirim oleh Koordinator Unit.</p>
+    <p>A new <strong>risk analysis</strong> has been submitted by the Unit Coordinator.</p>
 
     <p>
         <a href="{{ url('/dashboard/risk-analysis/' . $analysis->id) }}">

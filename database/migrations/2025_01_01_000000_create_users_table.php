@@ -17,9 +17,9 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->enum('role', [
-                'koordinator_unit', 'koordinator_menris', 'koordinator_mutu',
-                'kepala_puskesmas', 'dinas_kesehatan', 'admin'
-            ]);            
+                'unit_coordinator', 'risk_management_coordinator', 'quality_coordinator',
+                'health_center_head', 'health_department', 'admin'
+            ]);
             $table->timestamps();
         });
 

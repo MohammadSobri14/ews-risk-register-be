@@ -61,4 +61,10 @@ class Risk extends Model
         return $this->hasMany(RiskHandling::class);
     }
 
+    // Backwards-compatible alias: some code expects the relation name "riskHandlings"
+    public function riskHandlings()
+    {
+        return $this->handlings();
+    }
+
 }

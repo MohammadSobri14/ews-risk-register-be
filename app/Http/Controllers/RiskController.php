@@ -13,7 +13,7 @@ class RiskController extends Controller
 {
     // public function index()
     // {
-    //     // Menampilkan semua risk milik user yang sedang login
+    //     // Display all risks belonging to the currently logged in user
     //     return Risk::with('causes.subCauses')
     //         ->where('created_by', auth()->id())
     //         ->get();
@@ -24,7 +24,7 @@ class RiskController extends Controller
         $user = auth()->user();
         $query = Risk::with(['causes.subCauses', 'handlings']);
 
-        if ($user->role !== 'koordinator_mutu') {
+        if ($user->role !== 'quality_coordinator') {
             $query->where('created_by', $user->id);
         }
         return $query->get();
@@ -130,7 +130,7 @@ class RiskController extends Controller
                 'cluster', 'unit', 'name', 'category', 'description', 'impact', 'uc_c', 'status'
             ]));
 
-            // update causes hanya jika dikirim
+            // update causes only if sent
             if ($request->has('causes')) {
                 foreach ($risk->causes as $cause) {
                     $cause->subCauses()->delete();

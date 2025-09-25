@@ -25,7 +25,7 @@ class RiskHandlingSubmitted extends Notification
         $this->handling->load('handledBy');
 
         return (new MailMessage)
-            ->subject('Efektivitas Penanganan Risiko Baru')
+            ->subject('New Risk Management Effectiveness')
             ->view('emails.risk_handling_submitted', [
                 'handling' => $this->handling,
             ]);
@@ -34,7 +34,7 @@ class RiskHandlingSubmitted extends Notification
     public function toArray($notifiable): array
     {
         return [
-            'message' => 'Efektivitas penanganan risiko telah diinput.',
+            'message' => 'Risk management effectiveness has been inputted.',
             'handling_id' => $this->handling->id,
             'risk_id' => $this->handling->risk_id,
         ];

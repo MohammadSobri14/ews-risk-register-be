@@ -20,15 +20,15 @@ class RiskAnalysisController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role === 'koordinator_unit') {
+        if ($user->role === 'unit_coordinator') {
 
 
             $analyses = RiskAnalysis::with(['risk', 'creator'])
                 ->where('created_by', $user->id)
                 ->get();
         } else {
-            // Role lain, kosongkan hasil
-            $analyses = collect(); // atau ->whereRaw('1 = 0')->get()
+            // Other roles, return empty results
+            $analyses = collect(); // or ->whereRaw('1 = 0')->get()
             $analyses = collect();
         }
 
@@ -38,13 +38,14 @@ class RiskAnalysisController extends Controller
     public function getById($id)
     {
         $analysis = RiskAnalysis::with([
-            'risk.causes.subCauses', // ambil risk, lalu causes, lalu sub-causes
+            'risk.causes.subCauses', // get risk, then causes, then sub-causes
             'creator',
         ])->findOrFail($id);
 
         $user = Auth::user();
 
-        if ($user->role === 'koordinator_unit' && $analysis->created_by !== $user->id) {
+        // allow only the unit coordinator who created this analysis to view it
+        if ($user->role === 'unit_coordinator' && $analysis->created_by !== $user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -108,11 +109,11 @@ class RiskAnalysisController extends Controller
         $risk->status = 'pending';
         $risk->save();
 
-        // Kirim notifikasi
-        $manrisUsers = User::where('role', 'koordinator_menris')->get();
+        // Send notification to risk management coordinators
+        $manrisUsers = User::where('role', 'risk_management_coordinator')->get();
         Notification::send($manrisUsers, new RiskAnalysisSent($analysis));
 
-        return response()->json(['message' => 'Dikirim ke Koordinator Manajemen Risiko']);
+        return response()->json(['message' => 'Sent to Risk Management Coordinator']);
     }
 
 
@@ -122,7 +123,8 @@ class RiskAnalysisController extends Controller
 
 
         $user = Auth::user();
-        if ($user->role !== 'koordinator_unit' || $analysis->created_by !== $user->id) {
+        // only the unit coordinator who created the analysis can update it
+        if ($user->role !== 'unit_coordinator' || $analysis->created_by !== $user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -149,7 +151,7 @@ class RiskAnalysisController extends Controller
         $analysis = RiskAnalysis::findOrFail($id);
 
         $user = Auth::user();
-        if ($user->role !== 'koordinator_unit' || $analysis->created_by !== $user->id) {
+        if ($user->role !== 'unit_coordinator' || $analysis->created_by !== $user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -162,7 +164,8 @@ class RiskAnalysisController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role !== 'koordinator_menris') {
+        // only risk management coordinators can fetch pending and approved analyses
+        if ($user->role !== 'risk_management_coordinator') {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -183,7 +186,7 @@ class RiskAnalysisController extends Controller
 
     //     $user = Auth::user();
 
-    //     if ($user->role === 'koordinator_unit' && $analysis->created_by !== $user->id) {
+    //     if ($user->role === 'unit_coordinator' && $analysis->created_by !== $user->id) {
     //         return response()->json(['message' => 'Unauthorized'], 403);
     //     }
 

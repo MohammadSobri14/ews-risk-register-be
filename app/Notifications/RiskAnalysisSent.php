@@ -27,13 +27,13 @@ class RiskAnalysisSent extends Notification
             ->view('emails.risk_analysis_sent', [
                 'analysis' => $this->analysis,
             ])
-            ->subject('Analisis Risiko Baru Dikirim');
+            ->subject('New Risk Analysis Submitted');
     }
 
     public function toArray($notifiable): array
     {
         return [
-            'message' => 'Analisis risiko baru telah dikirim.',
+            'message' => 'New risk analysis has been submitted.',
             'risk_id' => $this->analysis->risk_id,
             'analysis_id' => $this->analysis->id,
         ];

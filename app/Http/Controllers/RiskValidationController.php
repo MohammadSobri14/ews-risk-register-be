@@ -31,20 +31,20 @@ class RiskValidationController extends Controller
             $risk->status = 'validated_approved';
             $risk->save();
 
-            $mutuUsers = User::where('role', 'koordinator_mutu')->get();
-            Notification::send($mutuUsers, new RiskValidationNotification($risk, true));
+            $qualityUsers = User::where('role', 'quality_coordinator')->get();
+            Notification::send($qualityUsers, new RiskValidationNotification($risk, true));
 
-            $unitUsers = User::where('role', 'koordinator_unit')->get();
+            $unitUsers = User::where('role', 'unit_coordinator')->get();
             Notification::send($unitUsers, new RiskValidationNotification($risk, true));
         } else {
             $risk->status = 'validated_rejected';
             $risk->save();
 
-            $unitUsers = User::where('role', 'koordinator_unit')->get();
+            $unitUsers = User::where('role', 'unit_coordinator')->get();
             Notification::send($unitUsers, new RiskValidationNotification($risk, false, $validation->notes));
         }
 
-        return response()->json(['message' => 'Validasi berhasil disimpan.']);
+        return response()->json(['message' => 'Validation saved successfully.']);
     }
 
 
@@ -53,13 +53,13 @@ class RiskValidationController extends Controller
         $validatedRisks = Risk::with([
             'causes.subCauses',
             'analysis',
-            'riskAppetite' 
+            'riskAppetite'
         ])
         ->whereIn('status', ['validated_approved', 'validated_rejected'])
         ->get();
-    
+
         return response()->json($validatedRisks);
     }
-    
+
 
 }

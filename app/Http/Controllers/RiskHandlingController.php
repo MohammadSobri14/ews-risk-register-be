@@ -15,9 +15,9 @@ class RiskHandlingController extends Controller
     {
         $user = auth()->user();
 
-        if (!in_array($user->role, ['koordinator_mutu', 'koordinator_unit'])) {
+        if (!in_array($user->role, ['quality_coordinator', 'unit_coordinator'])) {
             return response()->json([
-                'message' => 'Anda tidak memiliki izin untuk melakukan aksi ini.'
+                'message' => 'You do not have permission to perform this action.'
             ], 403);
         }
 
@@ -44,8 +44,9 @@ class RiskHandlingController extends Controller
     {
         $user = auth()->user();
 
-        if (!in_array($user->role, ['koordinator_mutu', 'koordinator_unit', 'kepala_puskesmas','koordinator_menris', 'admin'])) {
-            return response()->json(['message' => 'Tidak diizinkan.'], 403);
+        // Normalize role checks to use the English role keys stored in the DB/seeders
+        if (!in_array($user->role, ['quality_coordinator', 'unit_coordinator', 'health_center_head', 'risk_management_coordinator', 'admin'])) {
+            return response()->json(['message' => 'You are not allowed to access this resource.'], 403);
         }
 
         $handlings = RiskHandling::with([
@@ -95,7 +96,8 @@ class RiskHandlingController extends Controller
         $handling->is_sent = true;
         $handling->save();
 
-        $kepala = User::where('role', 'kepala_puskesmas')->get();
+    // find health center head users (DB role key: health_center_head)
+    $kepala = User::where('role', 'health_center_head')->get();
 
         Notification::send($kepala, new RiskHandlingSubmitted($handling));
 
@@ -108,7 +110,8 @@ class RiskHandlingController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->role !== 'kepala_puskesmas') {
+        // only health center head can review
+        if ($user->role !== 'health_center_head') {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -140,7 +143,7 @@ class RiskHandlingController extends Controller
         return response()->json([
             'message' => $request->is_approved
                 ? 'Disetujui dan disahkan.'
-                : 'Ditolak dan dikembalikan ke koordinator.',
+                : 'Rejected and returned to coordinator.',
         ]);
     }
 
@@ -148,9 +151,9 @@ class RiskHandlingController extends Controller
     {
         $user = auth()->user();
 
-        if (!in_array($user->role, ['koordinator_mutu', 'koordinator_unit'])) {
+        if (!in_array($user->role, ['quality_coordinator', 'unit_coordinator'])) {
             return response()->json([
-                'message' => 'Anda tidak memiliki izin untuk melakukan aksi ini.'
+                'message' => 'You do not have permission to perform this action.'
             ], 403);
         }
 
@@ -174,9 +177,9 @@ class RiskHandlingController extends Controller
     {
         $user = auth()->user();
 
-        if (!in_array($user->role, ['koordinator_mutu', 'koordinator_unit'])) {
+        if (!in_array($user->role, ['quality_coordinator', 'unit_coordinator'])) {
             return response()->json([
-                'message' => 'Anda tidak memiliki izin untuk menghapus data ini.'
+                'message' => 'You do not have permission to delete this resource.'
             ], 403);
         }
 

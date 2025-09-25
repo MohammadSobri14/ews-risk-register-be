@@ -35,8 +35,8 @@ class RiskValidationNotification extends Notification implements ShouldQueue
             ])
             ->subject(
                 $this->isApproved
-                    ? "Risk '{$this->risk->name}' Disetujui"
-                    : "Risk '{$this->risk->name}' Ditolak"
+                    ? "Risk '{$this->risk->name}' Approved"
+                    : "Risk '{$this->risk->name}' Rejected"
             );
     }
 
@@ -48,8 +48,8 @@ class RiskValidationNotification extends Notification implements ShouldQueue
             'is_approved' => $this->isApproved,
             'notes' => $this->notes,
             'message' => $this->isApproved
-                ? 'Risk disetujui Koordinator Manajemen Risiko.'
-                : 'Risk ditolak Koordinator Manajemen Risiko, perlu revisi.',
+                ? 'Risk approved by Risk Management Coordinator.'
+                : 'Risk rejected by Risk Management Coordinator; requires revision.',
             'notifiable_id' => $notifiable->id,
         ];
     }

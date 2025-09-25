@@ -23,8 +23,8 @@ class AdminUserController extends Controller
             'email'    => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
             'role'     => ['required', Rule::in([
-                'koordinator_unit', 'koordinator_menris', 'koordinator_mutu',
-                'kepala_puskesmas', 'dinas_kesehatan', 'admin'
+                'unit_coordinator', 'risk_management_coordinator', 'quality_coordinator',
+                'health_center_head', 'health_department', 'admin'
             ])],
         ]);
 
@@ -58,8 +58,8 @@ class AdminUserController extends Controller
             'email'    => ['sometimes', 'required', 'email', Rule::unique('users')->ignore($user->id)],
             'password' => 'nullable|string|min:6',
             'role'     => ['sometimes', Rule::in([
-                'koordinator_unit', 'koordinator_menris', 'koordinator_mutu',
-                'kepala_puskesmas', 'dinas_kesehatan', 'admin'
+                'unit_coordinator', 'risk_management_coordinator', 'quality_coordinator',
+                'health_center_head', 'health_department', 'admin'
             ])],
         ]);
 

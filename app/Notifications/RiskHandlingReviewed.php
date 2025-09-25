@@ -22,11 +22,11 @@ class RiskHandlingReviewed extends Notification
 
     public function toMail($notifiable): MailMessage
     {
-        $this->handling->load(['handledBy', 'reviewer']); 
+        $this->handling->load(['handledBy', 'reviewer']);
 
         $subject = $this->handling->is_approved
-            ? 'Laporan Penanganan Risiko Disetujui'
-            : 'Laporan Penanganan Risiko Ditolak';
+            ? 'Risk Management Report Approved'
+            : 'Risk Management Report Rejected';
 
         return (new MailMessage)
             ->subject($subject)
@@ -43,8 +43,8 @@ class RiskHandlingReviewed extends Notification
             'is_approved' => $this->handling->is_approved,
             'notes' => $this->handling->review_notes,
             'message' => $this->handling->is_approved
-                ? 'Laporan penanganan risiko telah disetujui oleh Kepala Puskesmas.'
-                : 'Laporan ditolak oleh Kepala Puskesmas dan perlu revisi.',
+                ? 'Risk handling report has been approved by the Health Center Head.'
+                : 'Risk handling report was rejected by the Health Center Head and requires revision.',
         ];
     }
 
